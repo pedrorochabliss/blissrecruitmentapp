@@ -12,11 +12,12 @@
           color="#668cff"/>
     </div>
     
-    <div v-if ="status != 'OK' "> 
+    <div v-if ="this.status != 'OK' "> 
         <button v-on:click="onRetryClick" class="button is-danger is-outlined">RETRY</button>
     </div>
 
   </section>
+
 </template>
 
 <script>
@@ -49,11 +50,17 @@
           this.tempStatus = response.data.status;
         })
         .catch(e => {this.tempStatus="ERROR";});
-        setTimeout(() => { this.checking = false; this.status = this.tempStatus;}, 3000)
+        setTimeout(() => { 
+          this.checking = false;
+          this.status = this.tempStatus;
+          if(this.status="OK"){
+           
+          }
+        }, 3000)
       },
 
+      // retry button callback
       onRetryClick : function(){
-        console.log("Entrei");
         this.status = "OK";
         this.checking = true;
         this.getServerHealth();
