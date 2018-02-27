@@ -12,14 +12,11 @@
           color="#668cff"/>
     </div>
     
-    <div v-if ="status == 'OK' ">
-    <at-button type="text">Text Button</at-button>
-
+    <div v-if ="status != 'OK' "> 
+        <button v-on:click="onRetryClick" class="button is-danger is-outlined">RETRY</button>
     </div>
-  
 
   </section>
-
 </template>
 
 <script>
@@ -29,10 +26,11 @@
   export default  {
     components: {
       //spinner shown while checking server health
-      HollowDotsSpinner
+      HollowDotsSpinner,
     },
     name: 'LoadingScreen',
     data() {
+      var tempStatus = "OK";
       var status = "OK";
       var checking = true;
       return {
@@ -44,13 +42,21 @@
         this.getServerHealth();
     },
     methods : {
+      // get the server health : can be 200 OK or 503 Service Unavailable. Please try again later.
       getServerHealth: function(){
         // request to check server health
         axios.get(`https://private-anon-08ab44f3c8-blissrecruitmentapi.apiary-mock.com/health`).then(response => {
-          this.status = response.data.status;
+          this.tempStatus = response.data.status;
         })
-        .catch(e => {this.status="ERROR";});
-        setTimeout(() => { this.checking = false; }, 3000)
+        .catch(e => {this.tempStatus="ERROR";});
+        setTimeout(() => { this.checking = false; this.status = this.tempStatus;}, 3000)
+      },
+
+      onRetryClick : function(){
+        console.log("Entrei");
+        this.status = "OK";
+        this.checking = true;
+        this.getServerHealth();
       }
     }
   }   
