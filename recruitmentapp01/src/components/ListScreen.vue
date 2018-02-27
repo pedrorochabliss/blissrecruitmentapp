@@ -53,8 +53,7 @@
     },
     methods: {
       getFilterParam : function() {
-        console.log(new Vue({ el: '#root',router: Router,	...root}).$route.params.filter);
-       
+        console.log(this.$router.params.filter);
       }
 
     },
