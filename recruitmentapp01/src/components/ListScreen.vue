@@ -3,12 +3,15 @@
   <section class="list-screen">
     <div class="columns">
       <div class="column">
+        <div class="filterBar">
         <b-field label="Filter">
             <b-input size="is-medium" v-model="filterInput"></b-input>
-          </b-field>
+        </b-field>
+        </div>
       </div>
       <div class="column">
-        <button class="button is-info shareButton"  @click="isShareActive = true" >Share </button>
+        <button class="button is-rounded searchButton" v-on:click="searchClicked" >Search </button>
+        <button class="button is-info is-rounded shareButton"  @click="isShareActive = true" >Share </button>
       </div>
     </div>
 
@@ -49,6 +52,7 @@
         <a class="card-footer-item" >Details</a>
       </footer>
       </div>
+      
       <br>
       <b-modal :active.sync="isShareActive" :width="640" scroll="keep">
             <div class="card">
@@ -68,6 +72,13 @@
                 </div>
             </div>
         </b-modal>
+    </div>
+  
+
+    <div class="columns">
+      <div class="column is-four-fifths"></div>
+      <div class="column"></div>
+      <div class="column"><button align="right" class="button is-rounded nextPageButton">Next page</button></div>
     </div>
   </section>
 
@@ -147,10 +158,8 @@
                   this.$toast.open({ message: 'An error ocurred while sharing this information. Please try again!', type: 'is-danger'});
             });
           }
-          
       },
       confirmClicked : function(question){
-        
         if(this.answeredQuestions.includes(question.id)){
           this.$toast.open({ message: 'You already answered to this question!', type: 'is-danger'});
           this.clearRadioButtons(question.id);
@@ -174,12 +183,9 @@
                       this.$toast.open({ message: 'An error ocurred while submitting your answer. Please try again!', type: 'is-danger'});
               });
             }
-          
-        }
-
-       
-        
+        }  
       },
+
       clearRadioButtons: function(questionId){
           var radList = document.getElementsByName('questionsRadioButtons');
           var count = 0;
@@ -189,6 +195,10 @@
           for (var k = count; k <= count+4; k++) {
             if(radList[k].checked) radList[k].checked = false
           }            
+      },
+
+      searchClicked :function(){
+          console.log("entrei");
       }
     },
     computed: {
@@ -214,14 +224,29 @@ margin:auto;
   color: black;
 }
 .b-input{
-  margin-bottom: 20%;
+  margin-top: 5%;
+  margin-bottom: 15%;
 }
 .input{
   margin-top: 5%;
 }
 .shareButton{
-  margin-top: 7%;
-  width: 40%;
+  margin-top: 12%;
+  width: 30%;
+}
+.searchButton{
+  margin-top: 12%;
+  margin-right: 5%;
+  width: 30%;
 }
 
+.filterBar{
+  margin-top: 5%;
+}
+
+.nextPageButton{
+  margin-top: 2.5%;
+  margin-bottom: 5%;
+
+}
 </style>
