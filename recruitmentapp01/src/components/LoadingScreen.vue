@@ -54,7 +54,7 @@
           this.checking = false;
           this.status = this.tempStatus;
           if(this.status="OK"){
-           
+           this.$router.push({ path: '/questions', params: {}})
           }
         }, 3000)
       },

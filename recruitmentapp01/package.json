@@ -17,12 +17,17 @@
     "bootstrap-vue": "^2.0.0-rc.1",
     "buefy": "^0.6.3",
     "epic-spinners": "^1.0.2",
+    "iview": "^2.9.2",
+    "keen-ui": "^1.0.1",
+    "material-design-icons": "^3.0.1",
+    "vee-validate": "^2.0.4",
     "vue": "^2.5.2",
     "vue-button": "^0.1.0",
     "vue-material": "^1.0.0-beta-7",
     "vue-resource": "^1.4.0",
     "vue-router": "^3.0.1",
-    "vuetify": "^1.0.3"
+    "vuesax": "^2.0.40",
+    "vuetify": "^1.0.4"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",
