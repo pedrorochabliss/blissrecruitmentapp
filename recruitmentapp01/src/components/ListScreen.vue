@@ -11,7 +11,7 @@
       </v-flex>
       <v-flex xs6>
         <button class="button is-info is-rounded shareButton" @click="isShareActive=true">Share </button>
-        <div class=" closeButton"> X </div>
+        <div class=" closeButton" v-on:click="closeSearchBarClicked()"> X </div>
       </v-flex>
     </v-layout>
     </v-container>
@@ -64,11 +64,10 @@
                             <p class="title is-5" align="center">SHARE THIS CONTENT</p>
                         </div>
                     </div>
-
                     <div class="content">
-                       <div class="field">
-                          <input class="input" type="email" placeholder="Insert the destination email" v-model="destinationEmail">
-                                 <button class="button is-success is-medium" v-on:click="shareInfo">Share</button>
+                       <div class="field shareForm">
+                          <input class="input is-rounded is-normal" type="email" placeholder="Insert the destination email" v-model="destinationEmail">
+                          <button class="button is-rounded is-success is-medium" v-on:click="shareInfo">Share</button>
                       </div>
                     </div>
                 </div>
@@ -263,6 +262,11 @@
           }, response => {
               this.questions = [];
           });
+      },
+
+      closeSearchBarClicked : function() {
+        this.isSearchBarActive = false;
+        this.$router.push({ path: '/questions', params: {}});
       }
     },
     computed: {
@@ -278,6 +282,12 @@
   display:block;
   margin-top: 5%;
 }
+
+.shareForm{
+  margin:auto;
+  display:block;
+  width: 80%;
+}
 .list-screen{
   margin-top: 3%;
   margin-left: 5%;
@@ -289,7 +299,7 @@
 }
 
 .shareButton{
-  margin-top: 7%;
+  margin-top: 7.5%;
   margin-left: -20%;
   width: 40%;
 }
@@ -306,11 +316,15 @@
 .closeButton{
   width: 2%;
   margin-left: 90%;
-  margin-top: -6%;
+  margin-top: -6.5%;
 }
 
 .fInput {
   margin-left: -5%;
 }
 
+.input{
+  margin-top: 5%;
+  margin-bottom: 5%;
+}
 </style>
