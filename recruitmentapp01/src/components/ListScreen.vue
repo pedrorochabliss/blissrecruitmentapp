@@ -1,20 +1,22 @@
 <template>
 
   <section class="list-screen">
-    <div class="columns">
-      <div class="column">
-        <div class="filterBar">
+    <div class="filterBar" v-if ="isSearchBarActive == true">
+    <v-container grid-list-md text-xs-center>
+    <v-layout row wrap>
+      <v-flex xs6>
         <b-field label="Filter">
-            <b-input size="is-medium" v-model="filterInput"></b-input>
+          <b-input size="is-medium" ref='search' v-on:blur="onBlurInput()" v-model="filterInput" rounded></b-input>
         </b-field>
-        </div>
-      </div>
-      <div class="column">
-        <button class="button is-rounded searchButton" v-on:click="searchClicked" >Search </button>
-        <button class="button is-info is-rounded shareButton"  @click="isShareActive = true" >Share </button>
-      </div>
+      </v-flex>
+      <v-flex xs6>
+        <button class="button is-info is-rounded shareButton" @click="isShareActive=true">Share </button>
+        <button class="button is-rounded closeButtons"> X </button>
+      </v-flex>
+    </v-layout>
+    </v-container>
     </div>
-
+   
     <div v-for="question in questions" :key="question.id">
       <div class="card">
       <header class="card-header">
@@ -73,12 +75,17 @@
             </div>
         </b-modal>
     </div>
-  
 
+    <div v-if ="this.loadedQuestions==true">
     <div class="columns">
-      <div class="column is-four-fifths"></div>
-      <div class="column"></div>
-      <div class="column"><button align="right" class="button is-rounded nextPageButton">Next page</button></div>
+      <div class="column is-two-thirds"></div>
+      <div class="column">
+        <div v-if ="this.globalOffset>0">
+        <button class="button is-rounded bottomButtons" v-on:click="previousPageClicked">Previous Page</button>
+        </div>
+      </div>
+      <div class="column"><button class="button is-rounded bottomButtons" v-on:click="nextPageClicked">Next Page</button></div>
+    </div>
     </div>
   </section>
 
@@ -96,40 +103,65 @@
     },
 
     mounted() {
+      this.initOffset();
       this.getQuestions();
     },
     data() {
-      var offset = 0;
+      var globalOffset;
       var limit = 10;
       var questions;
       var destinationEmail;
       var filterInput;
       var tempFilt;
       var  answeredQuestions = [0];
-      return {    
-        offset,
+      var isSearchBarActive = true;
+      var loadedQuestions = false
+      return { 
+        globalOffset,   
         limit,
         questions,
         destinationEmail :"",
         filterInput,
         tempFilt,
         isShareActive: false,
-        answeredQuestions 
+        isSearchBarActive,
+        loadedQuestions,
+        answeredQuestions
       }
     },
     methods: {
+      initOffset : function() {
+
+        if(window.sessionStorage.getItem("offset")==undefined){
+           window.sessionStorage.setItem("offset","0");
+        }
+
+        this.globalOffset = parseInt(window.sessionStorage.getItem("offset"));
+      },
 
       getQuestions : function() {
-        
-        if(this.filter != undefined && this.filter != ''){
-          this.$http.get(`https://private-anon-08ab44f3c8-blissrecruitmentapi.apiary-mock.com/questions?`+ this.limit+'&'+this.offset+'&'+this.filter).then(response => {
+        var offset = parseInt(window.sessionStorage.getItem("offset"));
+        if(this.filter != undefined){
+            this.isSearchBarActive = true;
+            this.$refs.search.focus();
+            this.filterInput = this.filter;
+           this.$http.get(`https://private-anon-08ab44f3c8-blissrecruitmentapi.apiary-mock.com/questions?`+ this.limit+'&'+offset+'&'+this.filter).
+           then(response => {
              this.questions = response.body;
+             this.loadedQuestions = true;
           }, response => {
               this.questions = [];
           });
         }else{
-          this.$http.get(`https://private-anon-08ab44f3c8-blissrecruitmentapi.apiary-mock.com/questions?`+ this.limit+'&'+this.offset+'&').then(response => {
+          if(this.$route.path.includes('questionfilter')){
+             this.isSearchBarActive = true;
+             this.$refs.search.focus();       
+          }else{
+             this.isSearchBarActive = false;
+          }
+          this.$http.get(`https://private-anon-08ab44f3c8-blissrecruitmentapi.apiary-mock.com/questions?`+ this.limit+'&'+offset+'&').then(response => {
             this.questions = response.body;
+            this.loadedQuestions = true;
           }, response => {
             this.questions = [];
           });
@@ -138,6 +170,7 @@
       },
 
       shareInfo : function() {
+         var offset = parseInt(window.sessionStorage.getItem("offset"));
           if(!this.destinationEmail.includes("@")|| this.destinationEmail.length <3){
             this.$toast.open({ message: 'Please insert a valid email!', type: 'is-danger'});
           }else{
@@ -147,7 +180,7 @@
               this.tempFilt = this.filter;
             }
             this.$http.post('https://private-anon-08ab44f3c8-blissrecruitmentapi.apiary-mock.com/share?'+this.destinationEmail+'&'
-            +`https://private-anon-08ab44f3c8-blissrecruitmentapi.apiary-mock.com/questions?`+ this.limit+'&'+this.offset+'&'+this.tempFilt).then(response => { 
+            +`https://private-anon-08ab44f3c8-blissrecruitmentapi.apiary-mock.com/questions?`+ this.limit+'&'+offset+'&'+this.tempFilt).then(response => { 
               if(response.status==200){
                   this.$toast.open({ message: 'Shared with success!', type: 'is-success'});
                   this.isShareActive = false;
@@ -159,6 +192,7 @@
             });
           }
       },
+
       confirmClicked : function(question){
         if(this.answeredQuestions.includes(question.id)){
           this.$toast.open({ message: 'You already answered to this question!', type: 'is-danger'});
@@ -188,17 +222,47 @@
 
       clearRadioButtons: function(questionId){
           var radList = document.getElementsByName('questionsRadioButtons');
-          var count = 0;
-          for (var i=1;i<questionId;i++){
-            count += 4;
-          }
-          for (var k = count; k <= count+4; k++) {
+          // radList contains the radio buttons from the 10 questions, we need to restrict it to the exact questionId radio buttons
+          // f(1) = 0 f(2) = 4 f(3) = 8 f(4) = 12
+          var index = (questionId-1)*4;
+          for (var k = index; k <= index+4; k++) {
             if(radList[k].checked) radList[k].checked = false
           }            
       },
 
-      searchClicked :function(){
-          console.log("entrei");
+      onBlurInput : function() {
+        if(this.filterInput != undefined){
+          this.filter = this.filterInput;
+          this.$http.get(`https://private-anon-08ab44f3c8-blissrecruitmentapi.apiary-mock.com/questions?`+ this.limit+'&'+this.offset+'&'+this.filter).then(response => {
+             this.questions = response.body;
+          }, response => {
+              this.questions = [];
+          });
+        }
+      },
+
+      nextPageClicked : function() {
+        var offset =  parseInt(window.sessionStorage.getItem("offset"));
+        offset += 10;
+        window.sessionStorage.setItem("offset",offset.toString());
+        this.$http.get(`https://private-anon-08ab44f3c8-blissrecruitmentapi.apiary-mock.com/questions?`+ this.limit+'&'+offset+'&'+this.filter).then(response => {
+             this.questions = response.body;
+             window.location.reload();
+          }, response => {
+              this.questions = [];
+          });
+      },
+
+      previousPageClicked : function() {
+        var offset =  parseInt(window.sessionStorage.getItem("offset"));
+        offset -= 10;
+        window.sessionStorage.setItem("offset",offset.toString());
+        this.$http.get(`https://private-anon-08ab44f3c8-blissrecruitmentapi.apiary-mock.com/questions?`+ this.limit+'&'+offset+'&'+this.filter).then(response => {
+             this.questions = response.body;
+             window.location.reload();
+          }, response => {
+              this.questions = [];
+          });
       }
     },
     computed: {
@@ -210,7 +274,7 @@
 <style scoped>
 .is-success{
   background-color:  rgb(1, 158, 1);
-margin:auto;
+  margin:auto;
   display:block;
   margin-top: 5%;
 }
@@ -223,30 +287,19 @@ margin:auto;
 .card-footer-item{
   color: black;
 }
-.b-input{
-  margin-top: 5%;
-  margin-bottom: 15%;
-}
-.input{
-  margin-top: 5%;
-}
+
 .shareButton{
-  margin-top: 12%;
-  width: 30%;
-}
-.searchButton{
-  margin-top: 12%;
-  margin-right: 5%;
-  width: 30%;
+  margin-left: -40%;
+  width: 35%;
 }
 
 .filterBar{
-  margin-top: 5%;
+  margin-bottom: 4%;
 }
 
-.nextPageButton{
+.bottomButtons{
   margin-top: 2.5%;
   margin-bottom: 5%;
-
 }
+
 </style>

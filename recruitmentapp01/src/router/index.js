@@ -7,7 +7,10 @@ import 'buefy/lib/buefy.css'
 import VueResource from 'vue-resource'
 import KeenUI from 'keen-ui';
 import 'keen-ui/dist/keen-ui.css';
+import Vuetify from 'vuetify';
+import 'vuetify/dist/vuetify.min.css';
 
+Vue.use(Vuetify)
 Vue.use(KeenUI)
 Vue.use(Buefy)
 Vue.use(Router)
@@ -24,10 +27,11 @@ export default new Router({
     },
 
     {
-      path: '/questions/:filter?',
+      path: '/questions/questionfilter=:filter?',
       name: 'ListScreen',
       component: ListScreen,
-      props: true
+      props: true,
+      alias: '/questions/'
     }
   ]
 })
