@@ -2,16 +2,16 @@
 
   <section class="list-screen">
     <div class="filterBar" v-if ="isSearchBarActive == true">
-    <v-container grid-list-md text-xs-center>
+    <v-container grid-list-xl text-xs-center>
     <v-layout row wrap>
       <v-flex xs6>
         <b-field label="Filter">
-          <b-input size="is-medium" ref='search' v-on:blur="onBlurInput()" v-model="filterInput" rounded></b-input>
+          <b-input class="fInput" size="is-medium" ref='search' v-on:blur="onBlurInput()" v-model="filterInput" rounded></b-input>
         </b-field>
       </v-flex>
       <v-flex xs6>
         <button class="button is-info is-rounded shareButton" @click="isShareActive=true">Share </button>
-        <button class="button is-rounded closeButtons"> X </button>
+        <div class=" closeButton"> X </div>
       </v-flex>
     </v-layout>
     </v-container>
@@ -289,8 +289,9 @@
 }
 
 .shareButton{
-  margin-left: -40%;
-  width: 35%;
+  margin-top: 7%;
+  margin-left: -20%;
+  width: 40%;
 }
 
 .filterBar{
@@ -300,6 +301,16 @@
 .bottomButtons{
   margin-top: 2.5%;
   margin-bottom: 5%;
+}
+
+.closeButton{
+  width: 2%;
+  margin-left: 90%;
+  margin-top: -6%;
+}
+
+.fInput {
+  margin-left: -5%;
 }
 
 </style>
