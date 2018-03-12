@@ -4,14 +4,14 @@
     <div class="filterBar" v-if ="isSearchBarActive == true">
     <v-container grid-list-xl text-xs-center>
     <v-layout row wrap>
-      <v-flex xs6>
-        <b-field label="Filter">
-          <b-input class="fInput" size="is-medium" ref='search' v-on:blur="onBlurInput()" v-model="filterInput" rounded></b-input>
-        </b-field>
+      <v-flex xs7>
+        <b-input class="fInput" size="is-medium" ref='search' v-on:blur="onBlurInput()" v-model="filterInput" rounded></b-input>
       </v-flex>
-      <v-flex xs6>
+      <v-flex xs3>
         <button class="button is-info is-rounded shareButton" @click="isShareActive=true">Share </button>
-        <div class=" closeButton" v-on:click="closeSearchBarClicked()"> X </div>
+      </v-flex>
+      <v-flex xs1>
+        <a class="delete closeButton" v-on:click="closeSearchBarClicked()"></a>
       </v-flex>
     </v-layout>
     </v-container>
@@ -20,9 +20,7 @@
     <div v-for="question in questions" :key="question.id">
       <div class="card">
       <header class="card-header">
-        <p class="card-header-title">
-          {{question.question}}
-        </p>
+        <span class="card-header-title"> {{question.question}}</span>
       </header>
       <div class="card-content">
         <div class="content">
@@ -51,7 +49,7 @@
       </div>
       <footer class="card-footer">
         <a class="card-footer-item" v-on:click="confirmClicked(question)" >Confirm</a>
-        <a class="card-footer-item" >Details</a>
+        <a class="card-footer-item" v-on:click="detailsClicked(question.id)">Details</a>
       </footer>
       </div>
       
@@ -78,13 +76,15 @@
     <div v-if ="this.loadedQuestions==true">
     <div class="columns">
       <div class="column is-two-thirds"></div>
-      <div class="column">
-        <div v-if ="this.globalOffset>0">
-        <button class="button is-rounded bottomButtons" v-on:click="previousPageClicked">Previous Page</button>
+        <div class="column">
+          <div v-if ="this.globalOffset>0">
+            <button class="button is-rounded bottomButtons previousPage" v-on:click="previousPageClicked">Previous Page</button>
+          </div>
+        </div>
+        <div class="column">
+          <button class="button is-rounded bottomButtons nextPage" v-on:click="nextPageClicked">Next Page</button>
         </div>
       </div>
-      <div class="column"><button class="button is-rounded bottomButtons" v-on:click="nextPageClicked">Next Page</button></div>
-    </div>
     </div>
   </section>
 
@@ -140,32 +140,33 @@
 
       getQuestions : function() {
         var offset = parseInt(window.sessionStorage.getItem("offset"));
-        if(this.filter != undefined){
-            this.isSearchBarActive = true;
-            this.$refs.search.focus();
-            this.filterInput = this.filter;
-           this.$http.get(`https://private-anon-08ab44f3c8-blissrecruitmentapi.apiary-mock.com/questions?`+ this.limit+'&'+offset+'&'+this.filter).
-           then(response => {
-             this.questions = response.body;
-             this.loadedQuestions = true;
-          }, response => {
-              this.questions = [];
-          });
-        }else{
-          if(this.$route.path.includes('questionfilter')){
-             this.isSearchBarActive = true;
-             this.$refs.search.focus();       
+        if(window.navigator.onLine){
+          if(this.filter != undefined){
+              this.isSearchBarActive = true;
+              this.$refs.search.focus();
+              this.filterInput = this.filter;
+            this.$http.get(`https://private-anon-08ab44f3c8-blissrecruitmentapi.apiary-mock.com/questions?`+ this.limit+'&'+offset+'&'+this.filter).
+            then(response => {
+              this.questions = response.body;
+              this.loadedQuestions = true;
+            }, response => {
+                this.questions = [];
+            });
           }else{
-             this.isSearchBarActive = false;
+            if(this.$route.path.includes('questionfilter')){
+              this.isSearchBarActive = true;
+              this.$refs.search.focus();       
+            }else{
+              this.isSearchBarActive = false;
+            }
+            this.$http.get(`https://private-anon-08ab44f3c8-blissrecruitmentapi.apiary-mock.com/questions?`+ this.limit+'&'+offset+'&').then(response => {
+              this.questions = response.body;
+              this.loadedQuestions = true;
+            }, response => {
+              this.questions = [];
+            });
           }
-          this.$http.get(`https://private-anon-08ab44f3c8-blissrecruitmentapi.apiary-mock.com/questions?`+ this.limit+'&'+offset+'&').then(response => {
-            this.questions = response.body;
-            this.loadedQuestions = true;
-          }, response => {
-            this.questions = [];
-          });
         }
-        
       },
 
       shareInfo : function() {
@@ -230,13 +231,16 @@
       },
 
       onBlurInput : function() {
+         var offset = parseInt(window.sessionStorage.getItem("offset"));
         if(this.filterInput != undefined){
           this.filter = this.filterInput;
-          this.$http.get(`https://private-anon-08ab44f3c8-blissrecruitmentapi.apiary-mock.com/questions?`+ this.limit+'&'+this.offset+'&'+this.filter).then(response => {
-             this.questions = response.body;
-          }, response => {
-              this.questions = [];
+          if(window.navigator.onLine){
+            this.$http.get(`https://private-anon-08ab44f3c8-blissrecruitmentapi.apiary-mock.com/questions?`+ this.limit+'&'+offset+'&'+this.filter).then(response => {
+            this.questions = response.body;
+            }, response => {
+            this.questions = [];
           });
+          }
         }
       },
 
@@ -265,8 +269,13 @@
       },
 
       closeSearchBarClicked : function() {
+        this.initOffset();
         this.isSearchBarActive = false;
         this.$router.push({ path: '/questions', params: {}});
+      },
+
+      detailsClicked : function(questId) {
+        this.$router.push({ path: '/questions/question_id='+questId, params: {}})
       }
     },
     computed: {
@@ -299,9 +308,8 @@
 }
 
 .shareButton{
-  margin-top: 7.5%;
   margin-left: -20%;
-  width: 40%;
+  margin-top: 1%;
 }
 
 .filterBar{
@@ -316,15 +324,19 @@
 .closeButton{
   width: 2%;
   margin-left: 90%;
-  margin-top: -6.5%;
+  margin-top: 13%;
+  background: hsl(204, 94%, 46%);
 }
 
 .fInput {
   margin-left: -5%;
 }
 
-.input{
-  margin-top: 5%;
-  margin-bottom: 5%;
+.previousPage {
+margin-left: 30%;
+}
+
+.nextPage {
+  margin-left: 33%;
 }
 </style>
