@@ -1,7 +1,6 @@
 <template lang="html">
 
   <section class="details-screen">
-    <div id="app">
     <v-container grid-list-xl text-xs-center>
     <v-layout row wrap>
       <v-flex xs12>
@@ -32,7 +31,6 @@
                 </div>
             </div>
         </b-modal>
-  </div>
   </section>
 
 </template>
@@ -143,7 +141,7 @@
 
 <style scoped>
   .chart {
-    margin-top: 18%;
+    margin-top: 13%;
     font-family: "Trebuchet MS", Helvetica, sans-serif;
   }
 

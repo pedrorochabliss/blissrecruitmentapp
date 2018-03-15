@@ -74,6 +74,7 @@
     </div>
 
     <div v-if ="this.loadedQuestions==true">
+    
     <div class="columns">
       <div class="column is-two-thirds"></div>
         <div class="column">
@@ -84,7 +85,7 @@
         <div class="column">
           <button class="button is-rounded bottomButtons nextPage" v-on:click="nextPageClicked">Next Page</button>
         </div>
-      </div>
+    </div>
     </div>
   </section>
 
@@ -308,7 +309,7 @@
 }
 
 .shareButton{
-  margin-left: -20%;
+  margin-left: -30%;
   margin-top: 1%;
 }
 
@@ -323,8 +324,8 @@
 
 .closeButton{
   width: 2%;
-  margin-left: 90%;
-  margin-top: 13%;
+  margin-left: -310%;
+  margin-top: 13.5%;
   background: hsl(204, 94%, 46%);
 }
 
