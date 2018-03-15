@@ -1,6 +1,6 @@
 # recruitmentapp01
 
-> A Vue.js project
+> Bliss Recruitment API is a simple API allowing consumers to view polls and vote in them.
 
 ## Build Setup
 
