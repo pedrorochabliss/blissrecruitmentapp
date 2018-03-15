@@ -1,4 +1,4 @@
-# recruitmentapp01
+# Bliss Recruitment APP
 
 > Bliss Recruitment API is a simple API allowing consumers to view polls and vote in them.
 
